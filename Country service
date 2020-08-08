@@ -1,0 +1,19 @@
+// This creates a WebServiceClient object that is thread-safe and can be
+// reused across requests. Reusing the object will allow it to keep
+// connections alive for future requests. The object is closeable, but
+// it should not be closed until you are finished making requests with it.
+//
+// Replace "42" with your account ID and "license_key" with your license key.
+try (WebServiceClient client = new WebServiceClient.Builder(42, "license_key")
+        .build()) {
+
+    InetAddress ipAddress = InetAddress.getByName("128.101.101.101");
+
+    // Do the lookup
+    CountryResponse response = client.country(ipAddress);
+
+    Country country = response.getCountry();
+    System.out.println(country.getIsoCode());            // 'US'
+    System.out.println(country.getName());               // 'United States'
+    System.out.println(country.getNames().get("zh-CN")); // '美国'
+}
