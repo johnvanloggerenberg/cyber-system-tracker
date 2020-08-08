@@ -1,0 +1,113 @@
+apt-get update -y
+
+apt-get install varnish -y
+
+systemctl status varnish
+varnishd -V
+
+netstat -ant
+
+apt-get install nginx -y
+
+nano /etc/nginx/sites-available/default
+
+
+
+server {
+        listen 8088 default_server;
+        listen [::]:8088 default_server;
+        root /var/www/html;
+        index index.html index.htm index.nginx-debian.html;
+        server_name _;
+        location / {
+                try_files $uri $uri/ =404;
+        }
+
+}
+
+systemctl restart nginx
+
+/lib/systemd/system/varnish.service
+
+
+# Change the Varnish default port from 6081 to 80 as shown below:
+
+[Unit]
+Description=Varnish HTTP accelerator
+Documentation=https://www.varnish-cache.org/docs/4.1/ man:varnishd
+
+[Service]
+Type=simple
+LimitNOFILE=131072
+LimitMEMLOCK=82000
+ExecStart=/usr/sbin/varnishd -j unix,user=vcache -F -a :80 -T localhost:6082 -f /etc/varnish/default.vcl -S /etc/varnish/secret -s malloc,256m
+ExecReload=/usr/share/varnish/varnishreload
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+
+[Install]
+WantedBy=multi-user.target
+
+
+systemctl daemon-reload
+
+
+# Varnish. You can do it by editing the file
+ /etc/varnish/default.vcl
+
+nano /etc/varnish/default.vcl
+ #Change the port from 8080 to 8088, as shown below:
+
+backend default {
+    .host = "127.0.0.1";
+    .port = "8088";
+}
+
+# Note: Replace 127.0.0.1 with your Nginx server IP address if your Nginx web server is installed on the other host.
+
+systemctl restart varnish
+
+# web server. It’s time to test it.
+
+# You can check the Varnish cache with the curl command as shown below:
+
+curl -I your-server-ip
+
+# You should get the following output:
+
+HTTP/1.1 200 OK
+Server: nginx/1.14.0 (Ubuntu)
+Date: Sun, 01 Dec 2019 06:46:18 GMT
+Content-Type: text/html
+Last-Modified: Sun, 01 Dec 2019 06:41:28 GMT
+ETag: W/"5de36098-264"
+Vary: Accept-Encoding
+X-Varnish: 32770 3
+Age: 17
+Via: 1.1 varnish (Varnish/5.2)
+Accept-Ranges: bytes
+Connection: keep-alive
+
+# command:
+
+varnishstat
+varnishtop
+tail -f varnishncsa.log
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
