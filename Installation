@@ -1,0 +1,24 @@
+pkg install ruby
+gem install geoip2
+
+# config geoip2
+Geoip2.configure do |conf|
+    # Mandatory
+    conf.license_key = 'Your MaxMind License Key'
+    conf.user_id = 'Your MaxMind User Id'
+    
+    # Optional
+    conf.host = 'geoip.maxmind.com' # Or any host that you would like to work with
+    conf.base_path = '/geoip/v2.0' # Or any other version of this API
+    conf.parallel_requests = 5 # Or any other amount of parallel requests that you would like to use
+end
+
+Getting a country from an IP
+Geoip2.country('0.0.0.0')
+Getting a country for multiple IPs at the same time
+
+Geoip2.in_parallel do
+    Geoip2.country('0.0.0.1')
+    Geoip2.country('0.0.0.2')
+end
+
